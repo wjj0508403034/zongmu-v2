@@ -11,13 +11,17 @@ public interface AssetService {
 
 	Asset save(CreateAssetParam createAssetParam) throws BusinessException;
 
-	AssetFile attchFile(String assetNo, AssetFile assetFile)
-			throws BusinessException;
+	AssetFile attchFile(String assetNo, AssetFile assetFile) throws BusinessException;
 
 	AssetTag createTag(AssetTag assetTag) throws BusinessException;
 
-	AssetTag batchAddTagItems(Long assetTagId, List<String> tagItems)
-			throws BusinessException;
+	AssetTag batchAddTagItems(Long assetTagId, List<String> tagItems) throws BusinessException;
 
 	List<AssetTag> findAllTags() throws BusinessException;
+
+	void setDefaultTagItem(Long assetTagItemId) throws BusinessException;
+
+	void deleteTagItem(Long assetTagItemId) throws BusinessException;
+
+	void updateTagItem(Long assetTagItemId, String tagItemName) throws BusinessException;
 }

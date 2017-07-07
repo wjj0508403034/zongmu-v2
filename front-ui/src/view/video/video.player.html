@@ -1,0 +1,17 @@
+<div class="row">
+  <div class="col-md-12">
+    <input type="button" ng-click="onNewShapeButtonClicked()" value="新建" ng-if="video.status !== 'play'"></input>
+    <input type="button" ng-click="onGroupShapeButtonClicked()" value="合并" ng-if="video.status !== 'play'"></input>
+    <select class="form-control" ng-model="shapeGroupStore.current" ng-change="onGroupShapeChanged()" ng-options="group as group.name for group in shapeGroupStore.groups()">
+    </select>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-12">
+    <div class="widgets-video-player" widgets-svg-story-board ng-model="shapeGroupStore" frame-index="video.currentFrame" channel="channel" on-shape-create-callback="onShapeCreateCallback(shape)" on-shape-selected-changed="onShapeSelectedChanged(shape)">
+      <video preload="metadata">
+        <source type="video/mp4"  ng-src="{{channel.src}}">
+      </video>
+    </div>
+  </div>
+</div>

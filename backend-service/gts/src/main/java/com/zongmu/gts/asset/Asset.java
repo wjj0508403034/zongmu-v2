@@ -7,6 +7,7 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
@@ -31,13 +32,14 @@ public class Asset extends EntityModel {
 
 	@Column
 	private AssetType assetType;
-	
+
 	@OneToMany(mappedBy = "asset", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
 	@OrderBy("id ASC")
 	private final List<AssetFile> files = new ArrayList<>();
 
 	@ManyToMany
-	private List<AssetTag> assetTags = new ArrayList<>();
+	@JoinTable
+	private List<AssetTagItem> assetTagItems = new ArrayList<>();
 
 	public String getName() {
 		return name;
@@ -71,12 +73,12 @@ public class Asset extends EntityModel {
 		this.assetType = assetType;
 	}
 
-	public List<AssetTag> getAssetTags() {
-		return assetTags;
+	public List<AssetTagItem> getAssetTagItems() {
+		return assetTagItems;
 	}
 
-	public void setAssetTags(List<AssetTag> assetTags) {
-		this.assetTags = assetTags;
+	public void setAssetTagItems(List<AssetTagItem> assetTagItems) {
+		this.assetTagItems = assetTagItems;
 	}
 
 	public List<AssetFile> getFiles() {

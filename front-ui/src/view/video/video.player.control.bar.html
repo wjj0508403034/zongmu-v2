@@ -1,0 +1,23 @@
+<div class="row">
+  <div class="col-md-12">
+    <input type="button" ng-click="onPlayButtonClicked()" value="播放" ng-if="video.status !== 'play'"></input>
+    <input type="button" ng-click="onPauseButtonClicked()" value="暂停" ng-if="video.status === 'play'"></input>
+    <input type="button" ng-click="onPreviousFrameButtonClicked()" value="上一帧"></input>
+    <input type="button" ng-click="onNextFrameButtonClicked()" value="下一帧"></input>
+    <input type="button" ng-click="onFastFastForwardButtonClicked()" value="快快进"></input>
+    <input type="button" ng-click="onFastForwardButtonClicked()" value="快进"></input>
+    <input type="button" ng-click="onFastBackwardButtonClicked()" value="快退"></input>
+    <input type="button" ng-click="onFastFastBackwardButtonClicked()" value="快快退"></input>
+    <input type="button" ng-click="onChangeRateButtonClicked(0.5)" value="0.5倍速率"></input>
+    <input type="button" ng-click="onChangeRateButtonClicked(1)" value="默认速率"></input>
+    <input type="button" ng-click="onChangeRateButtonClicked(2)" value="2倍速率"></input>
+    <span ng-bind="video | FrameInfo "></span>
+    <span ng-bind="video | TimeInfo "></span>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6" ng-repeat="channel in channels">
+    <div widgets-video-player ng-if="$index === 0" ng-model="shapeGroupStore" channel="channel" loaded="onVideoLoaded(video)" on-video-changed="onVideoChanged(video)"></div>
+    <div widgets-video-player ng-if="$index !== 0" ng-model="shapeGroupStore" channel="channel"></div>
+  </div>
+</div>

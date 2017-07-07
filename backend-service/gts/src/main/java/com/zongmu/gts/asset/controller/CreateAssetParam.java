@@ -12,7 +12,7 @@ public class CreateAssetParam {
 	private String name;
 	private DateTime recordTime;
 	private AssetType assetType;
-	private List<Long> assetTags = new ArrayList<>();
+	private List<Long> assetTagItemIds = new ArrayList<>();
 
 	public String getName() {
 		return name;
@@ -38,11 +38,12 @@ public class CreateAssetParam {
 		this.assetType = assetType;
 	}
 
-	public List<Long> getAssetTags() {
-		return assetTags;
+	public List<Long> getAssetTagItemIds() {
+		return assetTagItemIds;
 	}
 
-	public void setAssetTags(List<Long> assetTags) {
-		this.assetTags = assetTags;
+	public void setAssetTagItemIds(List<Long> assetTagItemIds) {
+		this.assetTagItemIds = assetTagItemIds;
 	}
+
 }

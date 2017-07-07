@@ -1,8 +1,13 @@
 package com.zongmu.gts.asset;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Index;
@@ -23,6 +28,9 @@ public class AssetTagItem extends EntityModel {
 
 	@Column
 	private boolean isDefault;
+
+	@ManyToMany(mappedBy = "assetTagItems", fetch = FetchType.LAZY)
+	private List<Asset> assets = new ArrayList<>();
 
 	@JsonIgnore
 	public AssetTag getAssetTag() {
@@ -47,5 +55,14 @@ public class AssetTagItem extends EntityModel {
 
 	public void setDefault(boolean isDefault) {
 		this.isDefault = isDefault;
+	}
+
+	@JsonIgnore
+	public List<Asset> getAssets() {
+		return assets;
+	}
+
+	public void setAssets(List<Asset> assets) {
+		this.assets = assets;
 	}
 }

@@ -37,29 +37,46 @@ public class AssetController {
 
 	@RequestMapping(value = "/{assetNo}/files", method = RequestMethod.POST)
 	@ResponseBody
-	public AssetFile createAssetFile(@PathVariable("assetNo") String assetNo,
-			@RequestBody AssetFile assetFile) throws BusinessException {
+	public AssetFile createAssetFile(@PathVariable("assetNo") String assetNo, @RequestBody AssetFile assetFile)
+			throws BusinessException {
 		return this.assetService.attchFile(assetNo, assetFile);
 	}
-	
+
 	@RequestMapping(value = "/tags", method = RequestMethod.GET)
 	@ResponseBody
-	public List<AssetTag> findAllTags()
-			throws BusinessException {
+	public List<AssetTag> findAllTags() throws BusinessException {
 		return this.assetService.findAllTags();
 	}
 
 	@RequestMapping(value = "/tags", method = RequestMethod.POST)
 	@ResponseBody
-	public AssetTag createTag(@RequestBody AssetTag assetTag)
-			throws BusinessException {
+	public AssetTag createTag(@RequestBody AssetTag assetTag) throws BusinessException {
 		return this.assetService.createTag(assetTag);
 	}
-	
+
 	@RequestMapping(value = "/tags/{assetTagId}/batchAdd", method = RequestMethod.POST)
 	@ResponseBody
-	public AssetTag batchAddTagItems(@PathVariable("assetTagId") Long assetTagId,@RequestBody List<String> tagItems)
+	public AssetTag batchAddTagItems(@PathVariable("assetTagId") Long assetTagId, @RequestBody List<String> tagItems)
 			throws BusinessException {
-		return this.assetService.batchAddTagItems(assetTagId,tagItems);
+		return this.assetService.batchAddTagItems(assetTagId, tagItems);
+	}
+
+	@RequestMapping(value = "/tagitems/{assetTagItemId}/setDefault", method = RequestMethod.POST)
+	@ResponseBody
+	public void setDefaultTagItem(@PathVariable("assetTagItemId") Long assetTagItemId) throws BusinessException {
+		this.assetService.setDefaultTagItem(assetTagItemId);
+	}
+
+	@RequestMapping(value = "/tagitems/{assetTagItemId}", method = RequestMethod.DELETE)
+	@ResponseBody
+	public void deleteTagItem(@PathVariable("assetTagItemId") Long assetTagItemId) throws BusinessException {
+		this.assetService.deleteTagItem(assetTagItemId);
+	}
+
+	@RequestMapping(value = "/tagitems/{assetTagItemId}", method = RequestMethod.PATCH)
+	@ResponseBody
+	public void updateTagItem(@PathVariable("assetTagItemId") Long assetTagItemId, @RequestBody String tagItemName)
+			throws BusinessException {
+		this.assetService.updateTagItem(assetTagItemId, tagItemName);
 	}
 }
