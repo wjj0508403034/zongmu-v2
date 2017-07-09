@@ -69,6 +69,9 @@ public class User extends EntityModel {
 	@Column
 	private DateTime lockedDate;
 
+	@Column
+	private Sex sex;
+
 	public String getUserName() {
 		return userName;
 	}
@@ -219,5 +222,13 @@ public class User extends EntityModel {
 
 	public void setLockedDate(DateTime lockedDate) {
 		this.lockedDate = lockedDate;
+	}
+
+	public Sex getSex() {
+		return sex;
+	}
+
+	public void setSex(Sex sex) {
+		this.sex = sex;
 	}
 }

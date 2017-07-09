@@ -1,5 +1,7 @@
 package com.zongmu.gts.core;
 
+import org.springframework.context.MessageSource;
+
 public interface LocaleService {
 
 	String getMessage(String key);
@@ -7,5 +9,7 @@ public interface LocaleService {
 	String getSubject(String key);
 
 	String getErrorMessage(String errorCode);
+
+	MessageSource getMessageSource();
 
 }
