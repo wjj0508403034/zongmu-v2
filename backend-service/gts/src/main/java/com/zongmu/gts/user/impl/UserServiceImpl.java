@@ -2,8 +2,6 @@ package com.zongmu.gts.user.impl;
 
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -15,13 +13,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-
 import com.zongmu.gts.core.BusinessException;
 import com.zongmu.gts.core.ErrorCode;
 import com.zongmu.gts.email.EmailService;
@@ -40,7 +33,8 @@ import com.zongmu.gts.user.repositories.UserRepo;
 @Service
 public class UserServiceImpl implements UserService {
 
-	private final static Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
+	private final static Logger LOGGER = LoggerFactory
+			.getLogger(UserServiceImpl.class);
 
 	@Autowired
 	private UserRepo userRepo;
@@ -53,7 +47,8 @@ public class UserServiceImpl implements UserService {
 	private AuthenticationManager authenticationManager;
 
 	@Override
-	public Page<User> findUsersByBusinessRole(Pageable pageable, BusinessRole role) {
+	public Page<User> findUsersByBusinessRole(Pageable pageable,
+			BusinessRole role) {
 		if (role == null) {
 			return this.userRepo.findUsers(pageable);
 		}
@@ -93,7 +88,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void changeUserRole(Long userId, BusinessRole role) throws BusinessException {
+	public void changeUserRole(Long userId, BusinessRole role)
+			throws BusinessException {
 		if (role == null) {
 			LOGGER.error("Business role should not be null.");
 			throw new BusinessException(ErrorCode.USER_BUSINESS_ROLE_IS_NULL);
@@ -114,7 +110,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public void updateUserProfile(UserProfileParam userProfileParam) throws BusinessException {
+	public void updateUserProfile(UserProfileParam userProfileParam)
+			throws BusinessException {
 		User user = this.getCurrentUser();
 		user.setUserName(userProfileParam.getUserName());
 		user.setSex(userProfileParam.getSex());
@@ -164,6 +161,11 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
+	public User findByEmail(String email) {
+		return this.userRepo.findByEmail(email);
+	}
+
+	@Override
 	public void login(LoginParam loginParam) throws BusinessException {
 		User user = this.userRepo.findByEmail(loginParam.getEmail());
 		if (user == null) {
@@ -200,24 +202,22 @@ public class UserServiceImpl implements UserService {
 			user.setLoginFailedCount(0);
 			this.userRepo.save(user);
 		}
-
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginParam.getEmail(),
-				loginParam.getPassword());
-		HttpServletRequest currentRequest = this.currentRequest();
-		token.setDetails(new WebAuthenticationDetails(currentRequest));
-		Authentication auth = this.authenticationManager.authenticate(token);
-		SecurityContextHolder.getContext().setAuthentication(auth);
-		currentRequest.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-				SecurityContextHolder.getContext());
+		this.autoLogin(user);
 	}
 
-	private HttpServletRequest currentRequest() {
-		ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-		return attrs.getRequest();
+	private void autoLogin(User user) {
+		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+				user.getEmail(), user.getPassword());
+
+		authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+		SecurityContextHolder.getContext().setAuthentication(
+				usernamePasswordAuthenticationToken);
+		LOGGER.info("User {} login successfully", user.getEmail());
 	}
 
 	private User getCurrentUserFromAuthentication() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = SecurityContextHolder.getContext()
+				.getAuthentication();
 		if (authentication != null && authentication.getPrincipal() != null) {
 			UserInfo userInfo = (UserInfo) authentication.getPrincipal();
 			if (userInfo != null) {
@@ -229,7 +229,8 @@ public class UserServiceImpl implements UserService {
 	}
 
 	private void sendRegisterMail(User user) throws BusinessException {
-		EmailTemplate emailTemplate = new EmailTemplateImpl(EmailTemplateNames.User_Active);
+		EmailTemplate emailTemplate = new EmailTemplateImpl(
+				EmailTemplateNames.User_Active);
 		emailTemplate.setVariable("user", user);
 		emailTemplate.setVariable("link", "http://www.baidu.com");
 		this.emailService.send(user.getEmail(), emailTemplate);

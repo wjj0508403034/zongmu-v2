@@ -31,5 +31,7 @@ public interface UserService {
 	User getCurrentUser() throws BusinessException;
 
 	void updateUserProfile(UserProfileParam userProfileParam) throws BusinessException;
+	
+	User findByEmail(String email);
 
 }

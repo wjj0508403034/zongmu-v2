@@ -8,7 +8,7 @@ public class UserInfo extends org.springframework.security.core.userdetails.User
 
 	public UserInfo(User user) {
 		super(user.getEmail(), user.getPassword(),
-				AuthorityUtils.createAuthorityList("ROLE_NORMAL"));
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		this.setUser(user);
 	}
 

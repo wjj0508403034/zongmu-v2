@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -36,6 +37,14 @@ public class BusinessExceptionHandler {
 		logger.error("BadCredentialsException", exception);
 		return this.BusinessError(new BusinessException(ErrorCode.USER_PASSWORD_INVALID));
 	}
+	
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<Object> accessDeniedException(AccessDeniedException exception) {
+		logger.error("AccessDeniedException", exception);
+		return this.BusinessError(new BusinessException(ErrorCode.USER_PASSWORD_INVALID));
+	}
+	
+	//public void AccessDeniedException
 
 	@ExceptionHandler(BusinessException.class)
 	public ResponseEntity<Object> BusinessError(BusinessException businessException) {
