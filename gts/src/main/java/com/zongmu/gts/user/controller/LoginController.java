@@ -18,12 +18,6 @@ public class LoginController {
 	@Autowired
 	private UserService userService;
 
-	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	@ResponseBody
-	public void register(@RequestBody RegisterParam registerParam) throws BusinessException {
-		this.userService.register(registerParam);
-	}
-
 	@RequestMapping(value = "/active.html", method = RequestMethod.GET)
 	public String active(@RequestParam(value = "code") String activeCode) {
 		try {
@@ -33,19 +27,28 @@ public class LoginController {
 			return "";
 		}
 	}
-	
+
 	@RequestMapping(value = "/login.html", method = RequestMethod.GET)
-	public String loginPage(){
+	public String loginPage() {
 		return "login";
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public String login(@RequestBody LoginParam loginParam) {
-		try {
-			this.userService.login(loginParam);
-			return "index";
-		} catch (BusinessException e) {
-			return "login";
-		}
+	@ResponseBody
+	public void login(@RequestBody LoginParam loginParam)
+			throws BusinessException {
+		this.userService.login(loginParam);
+	}
+
+	@RequestMapping(value = "/register.html", method = RequestMethod.GET)
+	public String registerPage() {
+		return "register";
+	}
+
+	@RequestMapping(value = "/register", method = RequestMethod.POST)
+	@ResponseBody
+	public void register(@RequestBody RegisterParam registerParam)
+			throws BusinessException {
+		this.userService.register(registerParam);
 	}
 }

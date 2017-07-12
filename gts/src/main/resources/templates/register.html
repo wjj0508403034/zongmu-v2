@@ -3,32 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <!-- inject:css -->
-  <link rel="stylesheet" href="../libs/app.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/font-awesome.min.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/huoyun.widget.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/ionicons.min.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/ngDialog-theme-default.min.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/ngDialog.min.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/color-picker/evol-colorpicker.min.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/daterangepicker/daterangepicker.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/datepicker/datepicker3.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/svg/svg.select.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/bootstrap/css/bootstrap-theme.min.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/bootstrap/css/bootstrap.min.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/datetimepicker/css/bootstrap-datetimepicker.min.css?v=1499855737092"></link>
-  <link rel="stylesheet" href="../libs/iCheck/square/_all.css?v=1499855737092"></link>
-  <!-- endinject -->
+  <link href="../libs/app.css?v=1499840681605" rel="stylesheet">
   <title ng-bind="title"></title>
 
 </head>
 
-<body class="huoyun hold-transition">
-  <div widgets-top-bar></div>
-  <div widgets-nav></div>
-
-  <div widgets-foot-bar></div>
+<body class="huoyun">
+  <div class="body-wrapper">
+    <div class="body-wrapper-bg">
+      <div class="form" ng-controller="RegisterController">
+        <header class="form-header">
+          <h1>欢迎注册销售易</h1>
+        </header>
+        <div class="form-body">
+          <ul>
+            <li has-error="{{vm.email.hasError}}">
+              <div class="form-input-warpper">
+                <input type="text" class="form-input" ng-model="vm.email.value" name="email" placeholder="请输入邮箱" tabindex="1">
+              </div>
+              <span class="err-msg" ng-bind="vm.email.errorMessage"></span>
+            </li>
+            <li has-error="{{vm.password.hasError}}">
+              <div class="form-input-warpper">
+                <input type="password" class="form-input" ng-model="vm.password.value" name="password" placeholder="请输入密码" tabindex="2">
+              </div>
+              <span class="err-msg" ng-bind="vm.password.errorMessage"></span>
+            </li>
+            <li has-error="{{vm.repeatPassword.hasError}}">
+              <div class="form-input-warpper">
+                <input type="password" class="form-input" ng-model="vm.repeatPassword.value" name="repeatPassword" placeholder="请再次输入密码"
+                  tabindex="2">
+              </div>
+              <span class="err-msg" ng-bind="vm.repeatPassword.errorMessage"></span>
+            </li>
+          </ul>
+        </div>
+        <div class="form-footer">
+          <div class="btn" tabindex="3" ng-click="register()">注册</div>
+        </div>
+        <div class="margin-top-30">
+          <span>已经拥有账号，去</span><span><a href="/login.html" class="register_link" tabindex="6" act="reg_link">登录</a></span>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 <!-- inject:js -->
 <script src="../libs/jquery.min.js?v=1499855737092"></script>

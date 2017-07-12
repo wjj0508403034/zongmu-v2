@@ -139,7 +139,7 @@ public class UserServiceImpl implements UserService {
 		user.setActiveCode(UUID.randomUUID().toString());
 		user.setRegisterDate(DateTime.now());
 		this.userRepo.save(user);
-		this.sendRegisterMail(user);
+		//this.sendRegisterMail(user);
 	}
 
 	@Override

@@ -3,6 +3,187 @@
 var huoyunWidget = angular.module('huoyun.widget', ['ngDialog', 'ngFileUpload']);
 'use strict';
 
+angular.module('huoyun.widget').factory("Field", function() {
+
+  function Field(name) {
+    this.name = name;
+    this.hasError = false;
+    this.errorMessage = null;
+    this.value = null;
+    this.validators = [];
+  }
+
+  Field.prototype.setError = function(errorMessage) {
+    this.hasError = true;
+    this.errorMessage = errorMessage;
+  };
+
+  Field.prototype.clearError = function() {
+    this.hasError = false;
+    this.errorMessage = null;
+  };
+
+  Field.prototype.addValidator = function(validator, message, options) {
+    this.validators.push(new validator(this.name, message, options));
+  };
+
+  Field.prototype.onValid = function() {
+    var promises = [];
+    this.validators.forEach(function(validator) {
+      promises.push(validator.onValid(this.value));
+    }.bind(this));
+    return Promise.all(promises);
+  };
+
+  return Field;
+});
+'use strict';
+
+angular.module('huoyun.widget').factory("FormModel", ["Field", "$q",
+  function(Field, $q) {
+
+    function FormModel(...names) {
+      names.forEach(function(fieldName) {
+        this[fieldName] = new Field(fieldName);
+      }.bind(this));
+    }
+
+    FormModel.prototype.getModel = function() {
+      var model = {};
+      Object.keys(this).forEach(function(fieldName) {
+        if (this.isField(fieldName)) {
+          model[fieldName] = this[fieldName].value;
+        }
+      }.bind(this));
+      return model;
+    };
+
+    FormModel.prototype.setError = function(fieldName, errorMessage) {
+      if (this.isField(fieldName)) {
+        this[fieldName].setError(errorMessage);
+      }
+    };
+
+    FormModel.prototype.clearErrors = function() {
+      Object.keys(this).forEach(function(fieldName) {
+        if (this.isField(fieldName)) {
+          this[fieldName].clearError();
+        }
+      }.bind(this));
+    };
+
+    FormModel.prototype.isField = function(fieldName) {
+      return this[fieldName] instanceof Field;
+    };
+
+    FormModel.prototype.addValidator = function(fieldName, validator, message, options) {
+      if (this.isField(fieldName)) {
+        this[fieldName].addValidator(validator, message, options);
+      }
+    };
+
+    FormModel.prototype.onValid = function() {
+      var promises = [];
+      Object.keys(this).forEach(function(fieldName) {
+        if (this.isField(fieldName)) {
+          promises.push(this[fieldName].onValid());
+        }
+      }.bind(this));
+
+      var dtd = $q.defer();
+      Promise.all(promises)
+        .then(function() {
+          dtd.resolve();
+        })
+        .catch(function(ex) {
+          dtd.reject(ex);
+        });
+
+      return dtd.promise;
+    };
+
+    return FormModel;
+  }
+]);
+'use strict';
+
+angular.module('huoyun.widget').factory("Validators", ["MandatoryValidator", "EmailValidator", "StringEqualValidator",
+  function(MandatoryValidator, EmailValidator, StringEqualValidator) {
+
+    return {
+      Mandatory: MandatoryValidator,
+      Email: EmailValidator,
+      StringEqual: StringEqualValidator
+    };
+  }
+]);
+'use strict';
+
+angular.module('huoyun.widget').directive("widgetsFootBar", ["footbar",
+  function(footbarProvider) {
+    return {
+      restrict: "A",
+      templateUrl: "footbar/footbar.html",
+      replace: true,
+      link: function($scope, elem, attrs) {
+
+        $scope.getLinks = function() {
+          return footbarProvider.getUsefulLinks();
+        };
+
+        $scope.getCopyRight = function() {
+          return footbarProvider.getCopyRight();
+        };
+
+        $scope.getCompanyName = function() {
+          return footbarProvider.getCompanyName();
+        };
+
+        $scope.getRecordNo = function() {
+          return footbarProvider.getRecordInfo();
+        };
+      }
+    };
+  }
+]);
+
+
+
+angular.module('huoyun.widget').provider("footbar", function() {
+  var usefulLinks = [];
+  var copyright = null;
+  var companyName = null;
+  var record = null; // 备案信息
+
+  this.configure = function(options) {
+    usefulLinks = options.links || [];
+    copyright = options.copyRight;
+    companyName = options.companyName;
+    record = options.recordNo;
+  };
+
+  this.getUsefulLinks = function() {
+    return usefulLinks;
+  };
+
+  this.getCopyRight = function() {
+    return copyright;
+  };
+
+  this.getRecordInfo = function() {
+    return record;
+  };
+
+  this.getCompanyName = function() {
+    return companyName;
+  };
+
+  this.$get = function() {
+    return this;
+  };
+});
+'use strict';
+
 huoyunWidget.constant("MarkFactory", function() {
 
   function Point(x, y) {
@@ -626,6 +807,50 @@ huoyunWidget.directive("widgetsSvgStoryBoard", ["$log", "MarkFactory", "Timeline
 ]);
 'use strict';
 
+angular.module('huoyun.widget').directive("widgetsNav", ["nav", function(navProvider) {
+  return {
+    restrict: "A",
+    templateUrl: "nav/nav.html",
+    replace: true,
+    scope: {
+      "current": "@"
+    },
+    link: function($scope, elem, attrs) {
+      $scope.getNavItem = function() {
+        return navProvider.getItems();
+      };
+    }
+  };
+}]);
+
+// angular.module('huoyun.widget').controller("navController", ["$scope", "nav", "page", function($scope, navProvider, pageProvider) {
+//   $scope.items = navProvider.getItems() || [];
+//   angular.forEach($scope.items, function(item, index) {
+//     item.className = item.name === $scope.current ? "active" : "";
+//   });
+
+//   $scope.contentWidth = pageProvider.getPageWidth();
+// }]);
+
+angular.module('huoyun.widget').provider("nav", function() {
+  this.items = [];
+
+  this.setItems = function(items) {
+    if (angular.isArray(items)) {
+      this.items = items;
+    }
+  };
+
+  this.getItems = function() {
+    return this.items;
+  };
+
+  this.$get = function() {
+    return this;
+  };
+});
+'use strict';
+
 huoyunWidget.constant("VideoEventName", {
   Play: "video.play",
   Pause: "video.pause",
@@ -1046,49 +1271,86 @@ angular.module('huoyun.widget').provider("application", function() {
 });
 'use strict';
 
-angular.module('huoyun.widget').directive("widgetsNav", ["nav", function(navProvider) {
-  return {
-    restrict: "A",
-    templateUrl: "nav/nav.html",
-    replace: true,
-    scope: {
-      "current": "@"
-    },
-    link: function($scope, elem, attrs) {
-      $scope.getNavItem = function() {
-        return navProvider.getItems();
-      };
+angular.module('huoyun.widget').factory("EmailValidator",
+  function() {
+
+    const PATTERN = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+
+    function EmailValidator(fieldName, errorMessage) {
+      this.errorMessage = errorMessage;
+      this.fieldName = fieldName;
     }
-  };
-}]);
 
-// angular.module('huoyun.widget').controller("navController", ["$scope", "nav", "page", function($scope, navProvider, pageProvider) {
-//   $scope.items = navProvider.getItems() || [];
-//   angular.forEach($scope.items, function(item, index) {
-//     item.className = item.name === $scope.current ? "active" : "";
-//   });
+    EmailValidator.prototype.onValid = function(value) {
+      if (PATTERN.test(value)) {
+        return Promise.resolve();
+      }
 
-//   $scope.contentWidth = pageProvider.getPageWidth();
-// }]);
-
-angular.module('huoyun.widget').provider("nav", function() {
-  this.items = [];
-
-  this.setItems = function(items) {
-    if (angular.isArray(items)) {
-      this.items = items;
+      return Promise.reject(this);
     }
-  };
 
-  this.getItems = function() {
-    return this.items;
-  };
+    return EmailValidator;
+  });
+'use strict';
 
-  this.$get = function() {
-    return this;
-  };
-});
-angular.module('huoyun.widget').run(['$templateCache', function($templateCache) {$templateCache.put('video/video.player.control.bar.html','<div class="row"><div class="col-md-12"><input type="button" ng-click="onPlayButtonClicked()" value="\u64AD\u653E" ng-if="video.status !== \'play\'"> <input type="button" ng-click="onPauseButtonClicked()" value="\u6682\u505C" ng-if="video.status === \'play\'"> <input type="button" ng-click="onPreviousFrameButtonClicked()" value="\u4E0A\u4E00\u5E27"> <input type="button" ng-click="onNextFrameButtonClicked()" value="\u4E0B\u4E00\u5E27"> <input type="button" ng-click="onFastFastForwardButtonClicked()" value="\u5FEB\u5FEB\u8FDB"> <input type="button" ng-click="onFastForwardButtonClicked()" value="\u5FEB\u8FDB"> <input type="button" ng-click="onFastBackwardButtonClicked()" value="\u5FEB\u9000"> <input type="button" ng-click="onFastFastBackwardButtonClicked()" value="\u5FEB\u5FEB\u9000"> <input type="button" ng-click="onChangeRateButtonClicked(0.5)" value="0.5\u500D\u901F\u7387"> <input type="button" ng-click="onChangeRateButtonClicked(1)" value="\u9ED8\u8BA4\u901F\u7387"> <input type="button" ng-click="onChangeRateButtonClicked(2)" value="2\u500D\u901F\u7387"> <span ng-bind="video | FrameInfo"></span> <span ng-bind="video | TimeInfo"></span></div></div><div class="row"><div class="col-md-6" ng-repeat="channel in channels"><div widgets-video-player="" ng-if="$index === 0" ng-model="shapeGroupStore" channel="channel" loaded="onVideoLoaded(video)" on-video-changed="onVideoChanged(video)"></div><div widgets-video-player="" ng-if="$index !== 0" ng-model="shapeGroupStore" channel="channel"></div></div></div>');
+angular.module('huoyun.widget').factory("MandatoryValidator",
+  function() {
+
+    function MandatoryValidator(fieldName, errorMessage) {
+      this.errorMessage = errorMessage;
+      this.fieldName = fieldName;
+    }
+
+    MandatoryValidator.prototype.onValid = function(value) {
+      if (value === null || value === undefined) {
+        return Promise.reject(this);
+      }
+
+      if (typeof value === "string") {
+        if (value.trim() === "") {
+          return Promise.reject(this);
+        }
+      }
+
+      return Promise.resolve();
+    }
+
+    return MandatoryValidator;
+  });
+'use strict';
+
+angular.module('huoyun.widget').factory("StringEqualValidator",
+  function() {
+
+    function StringEqualValidator(fieldName, errorMessage, options) {
+      this.errorMessage = errorMessage;
+      this.fieldName = fieldName;
+      this.options = options;
+    }
+
+    StringEqualValidator.prototype.onValid = function(value) {
+      if (typeof this.options.equals === "function") {
+        let equals = this.options.equals.apply(null, [value]);
+
+        if (equals instanceof Promise) {
+          return equals;
+        }
+
+        if (typeof equals === "boolean") {
+          if (equals) {
+            return Promise.resolve();
+          }
+
+          return Promise.reject(this);
+        }
+      }
+      throw new Error("StringEqualValidator onValid Error");
+    }
+
+    return StringEqualValidator;
+  });
+angular.module('huoyun.widget').run(['$templateCache', function($templateCache) {$templateCache.put('footbar/footbar.html','<div class="widgets-foot-bar" id="foot"><ul><li ng-repeat="link in getLinks()"><a ng-href="{{link.href}}" ng-bind="link.text"></a></li></ul><div class="addition-info"><span class="copyright"><i class="fa fa-copyright"></i> <span ng-bind="getCopyRight()"></span></span> <span class="company-name" ng-bind="getCompanyName()"></span> <span class="record" ng-bind="getRecordNo()"></span></div></div>');
+$templateCache.put('nav/nav.html','<nav class="widgets-nav"><ul><li ng-repeat="item in getNavItem()" name="{{item.name}}" huoyun-append-class="{{item.className}}" ng-if="item.visibility !== false"><a ng-href="{{item.href}}">{{item.text}}</a></li></ul></nav>');
+$templateCache.put('video/video.player.control.bar.html','<div class="row"><div class="col-md-12"><input type="button" ng-click="onPlayButtonClicked()" value="\u64AD\u653E" ng-if="video.status !== \'play\'"> <input type="button" ng-click="onPauseButtonClicked()" value="\u6682\u505C" ng-if="video.status === \'play\'"> <input type="button" ng-click="onPreviousFrameButtonClicked()" value="\u4E0A\u4E00\u5E27"> <input type="button" ng-click="onNextFrameButtonClicked()" value="\u4E0B\u4E00\u5E27"> <input type="button" ng-click="onFastFastForwardButtonClicked()" value="\u5FEB\u5FEB\u8FDB"> <input type="button" ng-click="onFastForwardButtonClicked()" value="\u5FEB\u8FDB"> <input type="button" ng-click="onFastBackwardButtonClicked()" value="\u5FEB\u9000"> <input type="button" ng-click="onFastFastBackwardButtonClicked()" value="\u5FEB\u5FEB\u9000"> <input type="button" ng-click="onChangeRateButtonClicked(0.5)" value="0.5\u500D\u901F\u7387"> <input type="button" ng-click="onChangeRateButtonClicked(1)" value="\u9ED8\u8BA4\u901F\u7387"> <input type="button" ng-click="onChangeRateButtonClicked(2)" value="2\u500D\u901F\u7387"> <span ng-bind="video | FrameInfo"></span> <span ng-bind="video | TimeInfo"></span></div></div><div class="row"><div class="col-md-6" ng-repeat="channel in channels"><div widgets-video-player="" ng-if="$index === 0" ng-model="shapeGroupStore" channel="channel" loaded="onVideoLoaded(video)" on-video-changed="onVideoChanged(video)"></div><div widgets-video-player="" ng-if="$index !== 0" ng-model="shapeGroupStore" channel="channel"></div></div></div>');
 $templateCache.put('video/video.player.html','<div class="row"><div class="col-md-12"><input type="button" ng-click="onNewShapeButtonClicked()" value="\u65B0\u5EFA" ng-if="video.status !== \'play\'"> <input type="button" ng-click="onGroupShapeButtonClicked()" value="\u5408\u5E76" ng-if="video.status !== \'play\'"><select class="form-control" ng-model="shapeGroupStore.current" ng-change="onGroupShapeChanged()" ng-options="group as group.name for group in shapeGroupStore.groups()"></select></div></div><div class="row"><div class="col-md-12"><div class="widgets-video-player" widgets-svg-story-board="" ng-model="shapeGroupStore" frame-index="video.currentFrame" channel="channel" on-shape-create-callback="onShapeCreateCallback(shape)" on-shape-selected-changed="onShapeSelectedChanged(shape)"><video preload="metadata"><source type="video/mp4" ng-src="{{channel.src}}"></video></div></div></div>');
-$templateCache.put('topbar/topbar.html','<div class="widgets-top-bar"><div class="left"><div class="title-container" ng-bind="getAppName()"></div></div><div class="right"><div class="sign-bar" ng-if="!hasLogin"><div class="login" widgets-link-button="" text="\u767B\u5F55" ng-click="login()"></div><div class="register" widgets-link-button="" text="\u6CE8\u518C" ng-click="register()"></div></div><div class="info-bar" ng-if="hasLogin"><div class="user-info">\u6B22\u8FCE<span class="user-name">{{userName}}</span></div><div class="logout" widgets-link-button="" text="\u9000\u51FA" ng-click="logout()"></div></div></div></div>');
-$templateCache.put('nav/nav.html','<nav class="widgets-nav"><ul><li ng-repeat="item in getNavItem()" name="{{item.name}}" huoyun-append-class="{{item.className}}" ng-if="item.visibility !== false"><a ng-href="{{item.href}}">{{item.text}}</a></li></ul></nav>');}]);
+$templateCache.put('topbar/topbar.html','<div class="widgets-top-bar"><div class="left"><div class="title-container" ng-bind="getAppName()"></div></div><div class="right"><div class="sign-bar" ng-if="!hasLogin"><div class="login" widgets-link-button="" text="\u767B\u5F55" ng-click="login()"></div><div class="register" widgets-link-button="" text="\u6CE8\u518C" ng-click="register()"></div></div><div class="info-bar" ng-if="hasLogin"><div class="user-info">\u6B22\u8FCE<span class="user-name">{{userName}}</span></div><div class="logout" widgets-link-button="" text="\u9000\u51FA" ng-click="logout()"></div></div></div></div>');}]);

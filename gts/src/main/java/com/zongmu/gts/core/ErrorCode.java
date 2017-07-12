@@ -14,10 +14,10 @@ public class ErrorCode {
 	public static final String USER_EXIST = "00010";
 	public final static String Send_Mail_Failed = "00011";
 	public final static String Parse_Email_Template_Failed = "00012";
-	public static final String USER_IS_ACTIVE = null;
-	public static final String ACTIVE_DATA_IS_OVERDUE = null;
-	public static final String USER_IS_NOT_ACTIVE = null;
-	public static final String LOGIN_USER_IS_BLACK = null;
-	public static final String LOGIN_USER_IS_LOCKEZD = null;
-	public static final String USER_NOT_LOGGIN = null;
+	public static final String USER_IS_ACTIVE = "00013";
+	public static final String ACTIVE_DATA_IS_OVERDUE =  "00014";
+	public static final String USER_IS_NOT_ACTIVE =  "00015";
+	public static final String LOGIN_USER_IS_BLACK = "00016";
+	public static final String LOGIN_USER_IS_LOCKEZD = "00017";
+	public static final String USER_NOT_LOGGIN = "00018";
 }
