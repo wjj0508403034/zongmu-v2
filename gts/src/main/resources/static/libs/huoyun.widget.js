@@ -184,6 +184,105 @@ angular.module('huoyun.widget').provider("footbar", function() {
 });
 'use strict';
 
+angular.module('huoyun.widget').directive("widgetsTopBar", ["application", function(applicationProvider) {
+  return {
+    restrict: "A",
+    templateUrl: "topbar/topbar.html",
+    replace: true,
+    link: function($scope, elem, attrs) {
+      $scope.getAppName = function() {
+        return applicationProvider.getName();
+      };
+      $scope.hasLogin = applicationProvider.hasLogin();
+      if ($scope.hasLogin) {
+        $scope.userName = applicationProvider.getUserName();
+      }
+
+      $scope.login = function() {
+        if (typeof applicationProvider.loginFunc === "function") {
+          applicationProvider.loginFunc();
+        }
+      };
+
+      $scope.register = function() {
+        if (typeof applicationProvider.registerFunc === "function") {
+          applicationProvider.registerFunc();
+        }
+      };
+
+      $scope.logout = function() {
+        if (typeof applicationProvider.logoutFunc === "function") {
+          applicationProvider.logoutFunc.bind(applicationProvider.getUserService())();
+        }
+      };
+    }
+  };
+}]);
+
+
+angular.module('huoyun.widget').provider("application", function() {
+  var appName = null;
+  var isLogin = false;
+  var userName = null;
+  var userService = null;
+
+  this.loginFunc = null;
+  this.registerFunc = null;
+  this.logoutFunc = null;
+
+  // if (Cookies.get("login") === "true") {
+  //   isLogin = true;
+  //   userName = Cookies.get("username");
+  // }
+
+  this.setName = function(name) {
+    appName = name;
+  };
+
+  this.getName = function() {
+    return appName;
+  };
+
+  this.setLogin = function(loginResult) {
+    // if (loginResult !== true) {
+    //   Cookies.remove("username");
+    //   Cookies.remove("login");
+    //   Cookies.remove("role");
+    // } else {
+    //   Cookies.set("login", loginResult);
+    // }
+
+    // isLogin = loginResult;
+  };
+
+  this.hasLogin = function() {
+    return isLogin;
+  };
+
+  this.setUserName = function(user_name, role) {
+    //Cookies.set("username", user_name);
+    //Cookies.set("role", role);
+    userName = user_name;
+  };
+
+  this.getUserName = function() {
+    return userName;
+  };
+
+  this.setUserService = function(user_service) {
+    userService = user_service;
+  };
+
+  this.getUserService = function() {
+    return userService;
+  };
+
+  this.$get = function() {
+    return this;
+  };
+});
+'use strict';
+
 huoyunWidget.constant("MarkFactory", function() {
 
   function Point(x, y) {
@@ -1172,105 +1271,6 @@ huoyunWidget.directive("widgetsVideoPlayer", ["$sce", "$log", "$timeout", "Video
 ]);
 'use strict';
 
-angular.module('huoyun.widget').directive("widgetsTopBar", ["application", function(applicationProvider) {
-  return {
-    restrict: "A",
-    templateUrl: "topbar/topbar.html",
-    replace: true,
-    link: function($scope, elem, attrs) {
-      $scope.getAppName = function() {
-        return applicationProvider.getName();
-      };
-      $scope.hasLogin = applicationProvider.hasLogin();
-      if ($scope.hasLogin) {
-        $scope.userName = applicationProvider.getUserName();
-      }
-
-      $scope.login = function() {
-        if (typeof applicationProvider.loginFunc === "function") {
-          applicationProvider.loginFunc();
-        }
-      };
-
-      $scope.register = function() {
-        if (typeof applicationProvider.registerFunc === "function") {
-          applicationProvider.registerFunc();
-        }
-      };
-
-      $scope.logout = function() {
-        if (typeof applicationProvider.logoutFunc === "function") {
-          applicationProvider.logoutFunc.bind(applicationProvider.getUserService())();
-        }
-      };
-    }
-  };
-}]);
-
-
-angular.module('huoyun.widget').provider("application", function() {
-  var appName = null;
-  var isLogin = false;
-  var userName = null;
-  var userService = null;
-
-  this.loginFunc = null;
-  this.registerFunc = null;
-  this.logoutFunc = null;
-
-  // if (Cookies.get("login") === "true") {
-  //   isLogin = true;
-  //   userName = Cookies.get("username");
-  // }
-
-  this.setName = function(name) {
-    appName = name;
-  };
-
-  this.getName = function() {
-    return appName;
-  };
-
-  this.setLogin = function(loginResult) {
-    // if (loginResult !== true) {
-    //   Cookies.remove("username");
-    //   Cookies.remove("login");
-    //   Cookies.remove("role");
-    // } else {
-    //   Cookies.set("login", loginResult);
-    // }
-
-    // isLogin = loginResult;
-  };
-
-  this.hasLogin = function() {
-    return isLogin;
-  };
-
-  this.setUserName = function(user_name, role) {
-    //Cookies.set("username", user_name);
-    //Cookies.set("role", role);
-    userName = user_name;
-  };
-
-  this.getUserName = function() {
-    return userName;
-  };
-
-  this.setUserService = function(user_service) {
-    userService = user_service;
-  };
-
-  this.getUserService = function() {
-    return userService;
-  };
-
-  this.$get = function() {
-    return this;
-  };
-});
-'use strict';
-
 angular.module('huoyun.widget').factory("EmailValidator",
   function() {
 
@@ -1350,7 +1350,7 @@ angular.module('huoyun.widget').factory("StringEqualValidator",
     return StringEqualValidator;
   });
 angular.module('huoyun.widget').run(['$templateCache', function($templateCache) {$templateCache.put('footbar/footbar.html','<div class="widgets-foot-bar" id="foot"><ul><li ng-repeat="link in getLinks()"><a ng-href="{{link.href}}" ng-bind="link.text"></a></li></ul><div class="addition-info"><span class="copyright"><i class="fa fa-copyright"></i> <span ng-bind="getCopyRight()"></span></span> <span class="company-name" ng-bind="getCompanyName()"></span> <span class="record" ng-bind="getRecordNo()"></span></div></div>');
+$templateCache.put('topbar/topbar.html','<div class="widgets-top-bar"><div class="left"><div class="title-container" ng-bind="getAppName()"></div></div><div class="right"><div class="sign-bar" ng-if="!hasLogin"><div class="login" widgets-link-button="" text="\u767B\u5F55" ng-click="login()"></div><div class="register" widgets-link-button="" text="\u6CE8\u518C" ng-click="register()"></div></div><div class="info-bar" ng-if="hasLogin"><div class="user-info">\u6B22\u8FCE<span class="user-name">{{userName}}</span></div><div class="logout" widgets-link-button="" text="\u9000\u51FA" ng-click="logout()"></div></div></div></div>');
 $templateCache.put('nav/nav.html','<nav class="widgets-nav"><ul><li ng-repeat="item in getNavItem()" name="{{item.name}}" huoyun-append-class="{{item.className}}" ng-if="item.visibility !== false"><a ng-href="{{item.href}}">{{item.text}}</a></li></ul></nav>');
 $templateCache.put('video/video.player.control.bar.html','<div class="row"><div class="col-md-12"><input type="button" ng-click="onPlayButtonClicked()" value="\u64AD\u653E" ng-if="video.status !== \'play\'"> <input type="button" ng-click="onPauseButtonClicked()" value="\u6682\u505C" ng-if="video.status === \'play\'"> <input type="button" ng-click="onPreviousFrameButtonClicked()" value="\u4E0A\u4E00\u5E27"> <input type="button" ng-click="onNextFrameButtonClicked()" value="\u4E0B\u4E00\u5E27"> <input type="button" ng-click="onFastFastForwardButtonClicked()" value="\u5FEB\u5FEB\u8FDB"> <input type="button" ng-click="onFastForwardButtonClicked()" value="\u5FEB\u8FDB"> <input type="button" ng-click="onFastBackwardButtonClicked()" value="\u5FEB\u9000"> <input type="button" ng-click="onFastFastBackwardButtonClicked()" value="\u5FEB\u5FEB\u9000"> <input type="button" ng-click="onChangeRateButtonClicked(0.5)" value="0.5\u500D\u901F\u7387"> <input type="button" ng-click="onChangeRateButtonClicked(1)" value="\u9ED8\u8BA4\u901F\u7387"> <input type="button" ng-click="onChangeRateButtonClicked(2)" value="2\u500D\u901F\u7387"> <span ng-bind="video | FrameInfo"></span> <span ng-bind="video | TimeInfo"></span></div></div><div class="row"><div class="col-md-6" ng-repeat="channel in channels"><div widgets-video-player="" ng-if="$index === 0" ng-model="shapeGroupStore" channel="channel" loaded="onVideoLoaded(video)" on-video-changed="onVideoChanged(video)"></div><div widgets-video-player="" ng-if="$index !== 0" ng-model="shapeGroupStore" channel="channel"></div></div></div>');
-$templateCache.put('video/video.player.html','<div class="row"><div class="col-md-12"><input type="button" ng-click="onNewShapeButtonClicked()" value="\u65B0\u5EFA" ng-if="video.status !== \'play\'"> <input type="button" ng-click="onGroupShapeButtonClicked()" value="\u5408\u5E76" ng-if="video.status !== \'play\'"><select class="form-control" ng-model="shapeGroupStore.current" ng-change="onGroupShapeChanged()" ng-options="group as group.name for group in shapeGroupStore.groups()"></select></div></div><div class="row"><div class="col-md-12"><div class="widgets-video-player" widgets-svg-story-board="" ng-model="shapeGroupStore" frame-index="video.currentFrame" channel="channel" on-shape-create-callback="onShapeCreateCallback(shape)" on-shape-selected-changed="onShapeSelectedChanged(shape)"><video preload="metadata"><source type="video/mp4" ng-src="{{channel.src}}"></video></div></div></div>');
-$templateCache.put('topbar/topbar.html','<div class="widgets-top-bar"><div class="left"><div class="title-container" ng-bind="getAppName()"></div></div><div class="right"><div class="sign-bar" ng-if="!hasLogin"><div class="login" widgets-link-button="" text="\u767B\u5F55" ng-click="login()"></div><div class="register" widgets-link-button="" text="\u6CE8\u518C" ng-click="register()"></div></div><div class="info-bar" ng-if="hasLogin"><div class="user-info">\u6B22\u8FCE<span class="user-name">{{userName}}</span></div><div class="logout" widgets-link-button="" text="\u9000\u51FA" ng-click="logout()"></div></div></div></div>');}]);
+$templateCache.put('video/video.player.html','<div class="row"><div class="col-md-12"><input type="button" ng-click="onNewShapeButtonClicked()" value="\u65B0\u5EFA" ng-if="video.status !== \'play\'"> <input type="button" ng-click="onGroupShapeButtonClicked()" value="\u5408\u5E76" ng-if="video.status !== \'play\'"><select class="form-control" ng-model="shapeGroupStore.current" ng-change="onGroupShapeChanged()" ng-options="group as group.name for group in shapeGroupStore.groups()"></select></div></div><div class="row"><div class="col-md-12"><div class="widgets-video-player" widgets-svg-story-board="" ng-model="shapeGroupStore" frame-index="video.currentFrame" channel="channel" on-shape-create-callback="onShapeCreateCallback(shape)" on-shape-selected-changed="onShapeSelectedChanged(shape)"><video preload="metadata"><source type="video/mp4" ng-src="{{channel.src}}"></video></div></div></div>');}]);

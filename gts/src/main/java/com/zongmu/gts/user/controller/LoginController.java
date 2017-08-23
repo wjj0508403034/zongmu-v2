@@ -51,4 +51,16 @@ public class LoginController {
 			throws BusinessException {
 		this.userService.register(registerParam);
 	}
+	
+	@RequestMapping(value = "/forgetPassword.html", method = RequestMethod.GET)
+	public String forgetPasswordPage() {
+		return "forget.password";
+	}
+
+	@RequestMapping(value = "/forgetPassword", method = RequestMethod.POST)
+	@ResponseBody
+	public void forgetPassword(@RequestBody ForgetPasswordParam forgetPasswordParam)
+			throws BusinessException {
+		//this.userService.register(registerParam);
+	}
 }
