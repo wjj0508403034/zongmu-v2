@@ -1,4 +1,4 @@
-var huoyun = angular.module('huoyun', ["huoyun.widget", "ui.router"]);
+var huoyun = angular.module('huoyun', ["huoyun.widget", 'huoyun.formdata']);
 
 huoyun.config(["$logProvider", function($logProvider) {
   $logProvider.debugEnabled(true);
@@ -9,6 +9,7 @@ huoyun.config(["applicationProvider", function(applicationProvider) {
 }]);
 
 huoyun.config(["navProvider", function(navProvider) {
+
   navProvider.setItems([{
     name: "home",
     text: "任务大厅",
@@ -24,6 +25,7 @@ huoyun.config(["navProvider", function(navProvider) {
   }, {
     name: "setting",
     text: "设置",
+    visibility: false,
     href: "page/setting/asset.view.tag.html"
   }, {
     name: "help",
@@ -31,25 +33,6 @@ huoyun.config(["navProvider", function(navProvider) {
     href: "page/help/index.html"
   }]);
 }]);
-
-huoyun.config(function($stateProvider, $urlRouterProvider) {
-  $urlRouterProvider.when("/", ["$state", function($state) {
-    //$state.go("home");
-  }]);
-
-  $urlRouterProvider.otherwise(function($injector, $location) {
-    //console.warn(`URL not found, URL: ${$location.$$absUrl}, Path: ${$location.$$url}`);
-    //$injector.get("$state").go("home");
-  });
-
-  $stateProvider
-    .state("home", {
-      url: "/index",
-      templateUrl: "view/setting/index.html",
-      controller: 'SettingIndexController'
-    });
-
-});
 
 
 huoyun.config(["footbarProvider", function(footbarProvider) {
@@ -66,36 +49,10 @@ huoyun.config(["footbarProvider", function(footbarProvider) {
     recordNo: "沪公安备09004260号"
   });
 }]);
-'use strict';
 
-huoyun.controller("ForgetPasswordController", ["$scope", "FormModel", "UserService", "Validators",
-  function($scope, FormModel, UserService, Validators) {
 
-    $scope.vm = new FormModel("email", "password", "repeatPassword");
-    $scope.vm.addValidator("email", Validators.Mandatory, "邮箱不能为空。");
-    $scope.vm.addValidator("email", Validators.Email, "邮件格式不正确。");
 
-    $scope.forgetPassword = function() {
-      $scope.vm.onValid()
-        .then(register)
-        .catch(function(ex) {
-          $scope.vm.clearErrors();
-          $scope.vm.setError(ex.fieldName, ex.errorMessage);
-        });
-    };
 
-    function forgetPassword() {
-      var model = $scope.vm.getModel();
-      UserService.forgetPassword(model.email)
-        .then(function() {
-          window.location.href = "/login.html";
-        }).catch(function(err) {
-          $scope.vm.clearErrors();
-          $scope.vm.setError("email", err.message);
-        });
-    }
-  }
-]);
 huoyun.controller("appController", ["$scope",
   function($scope) {
     $scope.title = "纵目真值系统";
@@ -104,10 +61,10 @@ huoyun.controller("appController", ["$scope",
 ]);
 'use strict';
 
-huoyun.controller("LoginController", ["$scope", "FormModel", "UserService", "Validators",
-  function($scope, FormModel, UserService, Validators) {
+huoyun.controller("LoginController", ["$scope", "FormData", "UserService", "Validators",
+  function($scope, FormData, UserService, Validators) {
 
-    $scope.vm = new FormModel("email", "password");
+    $scope.vm = new FormData("email", "password");
     $scope.vm.addValidator("email", Validators.Mandatory, "邮箱不能为空。");
     $scope.vm.addValidator("email", Validators.Email, "邮件格式不正确。");
     $scope.vm.addValidator("password", Validators.Mandatory, "密码不能为空。");
@@ -135,10 +92,10 @@ huoyun.controller("LoginController", ["$scope", "FormModel", "UserService", "Val
 ]);
 'use strict';
 
-huoyun.controller("RegisterController", ["$scope", "FormModel", "UserService", "Validators",
-  function($scope, FormModel, UserService, Validators) {
+huoyun.controller("RegisterController", ["$scope", "FormData", "UserService", "Validators",
+  function($scope, FormData, UserService, Validators) {
 
-    $scope.vm = new FormModel("email", "password", "repeatPassword");
+    $scope.vm = new FormData("email", "password", "repeatPassword");
     $scope.vm.addValidator("email", Validators.Mandatory, "邮箱不能为空。");
     $scope.vm.addValidator("email", Validators.Email, "邮件格式不正确。");
     $scope.vm.addValidator("password", Validators.Mandatory, "密码不能为空。");
